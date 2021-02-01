@@ -1,43 +1,77 @@
 import React, {Component} from 'react'
-import './TodoApp.css'
+
+import {BrowserRouter as Router,Link,Route, Switch} from 'react-router-dom'
+import AuthenticatedRoute from './AuthenticatedRoute'
+import LoginComponent from './LoginComponent'
+import HearderComponent from './HearderComponent'
+import ListTodoComponent from './ListToDoComponent'
+import RedirectRoute from './RedirectRoute'
 export default class TodoApp extends Component {
     render(){
         return (
-            <div>
-                <h1>Login page</h1>
-                <LoginComponent></LoginComponent>
+            <div className="TodoApp">
+            <Router>
+            <HearderComponent></HearderComponent>
+            <Switch>
+                <RedirectRoute path="/" exact component={LoginComponent}/>
+                <RedirectRoute path="/login" component={LoginComponent}/>
+                <AuthenticatedRoute path="/welcome/:username" component={WelcomeComponent}/>
+                <AuthenticatedRoute path="/todos" component={ListTodoComponent}/>
+                <AuthenticatedRoute path="/logout" component={LogoutComponent}/>
+                <Route component={ErrorComponent}/>
+            </Switch>
+            <FooterComponent></FooterComponent>
+            </Router>
             </div>
             );
     }
 }
-class LoginComponent extends Component {
-    constructor(props){
-        super(props)
-        this.state={
-            username:"in28minutes",
-            password:""
-        }
+
+//function component
+function ShowInvalidCredentials(props){
+    if(props.hasLoginFailed){
+        return <div>Invalid Credentials</div>
     }
+    return null
+}
+class WelcomeComponent extends Component{
     render(){
-        return (
+        //parameter in url is also part of props
+        return(
             <div>
-            Username: <input type="text" name="username" value={this.state.username} onChange={this.handleUsernameChange}></input>
-            Password: <input type="password" name="password" value={this.state.password} onChange={this.handlePasswordChange}></input>
-            <button className="button"><span>Login</span></button>
+                Welcome to {sessionStorage.getItem('authenticatedUser')}. You can manage your todos <Link to="/todos">here</Link>
             </div>
-            );
+        );
+        //Use <Link> instead of <a> because when we use anchor tag the whole page gets refreshed.
     }
-    //event here is synthetic event
-    handleUsernameChange=(event)=>{
-        this.setState(
-            {
-                username: event.target.value
-            }
+}
+
+
+
+class FooterComponent extends Component{
+    render(){
+        return(
+            <footer className="footer">
+                <span className="text-muted">All Rights reserved 2021 @rajathelix</span>
+            </footer>
         )
     }
-    handlePasswordChange=(event)=>{
-        this.setState({
-            password: event.target.value
-        })
+}
+
+class LogoutComponent extends Component{
+    render(){
+        return(
+            <>
+                <h1>You are logged out</h1>
+                <div className="container">
+                    Thank you for using our Application.
+                </div>
+            </>
+        )
     }
 }
+
+function ErrorComponent(){
+    return <div>An Error Occured. I don't know what to do! Contact support at rajathelix@gmail.com</div>
+}
+
